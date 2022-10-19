@@ -1,0 +1,48 @@
+using BackEnd.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace BackEnd.Controllers
+{
+    public class LoginController : ApiController
+    {
+        public HttpResponseMessage Post(Credentials c)
+        {
+            /*success:1
+             email not found:2
+            password mismatch:3*/
+            bool found = false;
+            int response = -1;
+            using (CompanyEntities dbContext = new CompanyEntities())
+            {
+
+                var Logins = dbContext.Logins.ToList();
+                foreach (var i in Logins)
+                {
+                    if (i.company_email == c.Email)
+                    {
+                        found = true;
+                        if (i.company_password == c.Password)
+                        {
+                            response = 1;
+                        }
+                        else
+                        {
+                            response = 3;
+                        }
+                    }
+                }
+                if (found == false)
+                {
+                    response = 2;
+                }
+                return Request.CreateResponse(HttpStatusCode.OK, response);
+
+            }
+        }
+    }
+}
